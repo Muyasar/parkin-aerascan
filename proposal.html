@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AeraScan — Autonomous Drone Parking Enforcement | Proposal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --green: #00B67A;
+  --green-dark: #009966;
+  --green-light: #E6FFF5;
+  --green-bg: rgba(0,182,122,0.06);
+  --dark: #0A0E17;
+  --card: #111827;
+  --card-border: rgba(255,255,255,0.06);
+  --text: #FFFFFF;
+  --text-dim: #94A3B8;
+  --text-mid: #CBD5E1;
+  --red: #EF4444;
+  --red-bg: rgba(239,68,68,0.08);
+  --amber: #F59E0B;
+  --amber-bg: rgba(245,158,11,0.08);
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); line-height: 1.7; }
+
+/* Print / PDF */
+@media print {
+  body { background: #fff; color: #111; }
+  .page { break-after: page; }
+  nav, .no-print { display: none !important; }
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 1rem 2.5rem; display: flex; align-items: center; justify-content: space-between;
+  background: rgba(10,14,23,0.9); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--card-border);
+}
+.nav-logo { font-weight: 800; font-size: 1.3rem; }
+.nav-logo span { color: var(--green); }
+.nav-tag { font-size: 0.7rem; color: var(--text-dim); background: var(--card); padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+
+/* ─── LAYOUT ─── */
+.container { max-width: 960px; margin: 0 auto; padding: 0 2rem; }
+
+/* ─── COVER ─── */
+.cover {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  text-align: center; position: relative; overflow: hidden;
+}
+.cover::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0,182,122,0.1), transparent 70%);
+}
+.cover-content { position: relative; }
+.cover-label {
+  display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--green); margin-bottom: 1.5rem;
+  background: var(--green-bg); padding: 0.5rem 1.2rem; border-radius: 30px;
+  border: 1px solid rgba(0,182,122,0.2);
+}
+.cover h1 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 1rem; }
+.cover h1 .gr { background: linear-gradient(135deg, var(--green), #00E89D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.cover .sub { font-size: 1.2rem; color: var(--text-dim); margin-bottom: 0.5rem; }
+.cover .meta { font-size: 0.85rem; color: var(--text-dim); margin-top: 3rem; opacity: 0.6; }
+.cover .logos { display: flex; align-items: center; justify-content: center; gap: 2rem; margin-top: 2rem; }
+.cover .logo-box { background: var(--card); padding: 1rem 2rem; border-radius: 12px; border: 1px solid var(--card-border); font-weight: 700; font-size: 1.1rem; }
+
+/* ─── SECTIONS ─── */
+.section { padding: 5rem 0; }
+.section + .section { border-top: 1px solid var(--card-border); }
+
+.stag { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); margin-bottom: 0.8rem; }
+.sh { font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 1rem; line-height: 1.2; }
+.sp { font-size: 1rem; color: var(--text-dim); max-width: 700px; line-height: 1.8; }
+
+/* ─── CARDS ─── */
+.grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 2.5rem; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2.5rem; }
+
+.card {
+  background: var(--card); border: 1px solid var(--card-border);
+  border-radius: 16px; padding: 2rem;
+}
+.card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+.card p { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; }
+.card .num { font-size: 2rem; font-weight: 900; color: var(--green); margin-bottom: 0.3rem; }
+.card .num.red { color: var(--red); }
+.card .num.amber { color: var(--amber); }
+
+/* ─── COMPARISON TABLE ─── */
+.comp-table { width: 100%; border-collapse: collapse; margin-top: 2.5rem; font-size: 0.9rem; }
+.comp-table th, .comp-table td { padding: 1rem 1.2rem; text-align: left; border-bottom: 1px solid var(--card-border); }
+.comp-table thead th { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
+.comp-table .col-current { background: var(--red-bg); }
+.comp-table .col-drone { background: var(--green-bg); }
+.comp-table .metric { font-weight: 600; color: var(--text-mid); min-width: 180px; }
+.comp-table td.good { color: var(--green); font-weight: 600; }
+.comp-table td.bad { color: var(--red); font-weight: 600; }
+
+/* ─── TIMELINE ─── */
+.timeline { margin-top: 3rem; position: relative; padding-left: 2.5rem; }
+.timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: rgba(0,182,122,0.2); }
+.tl-item { margin-bottom: 2.5rem; position: relative; }
+.tl-dot { position: absolute; left: -2.5rem; top: 0.3rem; width: 18px; height: 18px; border-radius: 50%; background: var(--green); border: 3px solid var(--dark); }
+.tl-phase { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 0.3rem; }
+.tl-item h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem; }
+.tl-item p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ─── FINANCIAL ─── */
+.fin-row { display: flex; align-items: stretch; gap: 1.5rem; margin-top: 2rem; }
+.fin-box { flex: 1; background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 2rem; text-align: center; }
+.fin-box .big { font-size: 2.2rem; font-weight: 900; margin-bottom: 0.2rem; }
+.fin-box .big.green { color: var(--green); }
+.fin-box .big.red { color: var(--red); }
+.fin-box .label { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+.fin-box .note { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.5rem; opacity: 0.7; }
+
+/* ─── HIGHLIGHT BOX ─── */
+.highlight {
+  background: var(--green-bg); border: 1px solid rgba(0,182,122,0.2);
+  border-radius: 16px; padding: 2rem 2.5rem; margin-top: 2.5rem;
+}
+.highlight h4 { color: var(--green); font-size: 1rem; margin-bottom: 0.5rem; }
+.highlight p { color: var(--text-mid); font-size: 0.95rem; }
+
+.warning {
+  background: var(--amber-bg); border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 16px; padding: 2rem 2.5rem; margin-top: 2.5rem;
+}
+.warning h4 { color: var(--amber); font-size: 1rem; margin-bottom: 0.5rem; }
+.warning p { color: var(--text-mid); font-size: 0.95rem; }
+
+/* ─── FOOTER ─── */
+footer { padding: 3rem 0; text-align: center; border-top: 1px solid var(--card-border); }
+footer p { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  .grid2, .grid3 { grid-template-columns: 1fr; }
+  .fin-row { flex-direction: column; }
+  .comp-table { font-size: 0.8rem; }
+  .comp-table th, .comp-table td { padding: 0.7rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo"><span>Parkin</span> × AeraScan</div>
+  <div class="nav-tag">Confidential Proposal</div>
+</nav>
+
+<!-- ════════════════════════════════════════ COVER ════════════════════════════════════════ -->
+<section class="cover page">
+  <div class="cover-content">
+    <div class="cover-label">Technology & Commercial Proposal</div>
+    <h1>Autonomous Drone<br><span class="gr">Parking Enforcement</span></h1>
+    <p class="sub">Replacing human inspectors with AI-powered autonomous drone systems for 24/7 parking compliance monitoring across Dubai.</p>
+    <div class="logos">
+      <div class="logo-box">Parkin <span style="color:var(--text-dim);font-weight:400">PJSC</span></div>
+      <span style="color:var(--text-dim)">×</span>
+      <div class="logo-box" style="color:var(--green)">AeraScan</div>
+    </div>
+    <p class="meta">February 2026 · Version 1.0 · Prepared by Skyvertise</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════ EXECUTIVE SUMMARY ════════════════════════════════════════ -->
+<div class="container">
+
+<section class="section page">
+  <div class="stag">01 · Executive Summary</div>
+  <h2 class="sh">The Opportunity</h2>
+  <p class="sp">Parkin PJSC manages 219,000+ parking spaces across Dubai, generating AED 343M+ in quarterly revenue. Enforcement is the growth engine — fines surged 63% YoY in Q3 2025 to 682,000 violations, driven by technology upgrades to the 27-vehicle smart scan fleet.</p>
+  <p class="sp" style="margin-top:1rem;">But the current model has a ceiling. Human inspectors face extreme heat (50°C+ summers), scan cars are limited to accessible roads, and collection rates are declining (from 97% to 85%). <strong>AeraScan removes these constraints entirely</strong> — deploying autonomous drones from weatherproof docking stations to scan every zone, every hour, regardless of conditions.</p>
+
+  <div class="highlight">
+    <h4>💡 The Core Value Proposition</h4>
+    <p>AeraScan can increase plate scanning capacity by <strong>3-5x</strong> while reducing enforcement operational costs by <strong>40-60%</strong>. With Parkin's current fine revenue at AED 249M+ annually and growing, even a 20% improvement in detection translates to <strong>AED 50M+</strong> in additional annual revenue.</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════ CURRENT STATE ════════════════════════════════════════ -->
+<section class="section page">
+  <div class="stag">02 · Current State Analysis</div>
+  <h2 class="sh">Parkin's Enforcement Today</h2>
+  <p class="sp">Based on publicly reported Q3 2025 and FY2024 data.</p>
+
+  <div class="grid3">
+    <div class="card">
+      <div class="num">219K</div>
+      <h4>Total Parking Spaces</h4>
+      <p>192,100 public + developer spaces across Dubai zones A-D</p>
+    </div>
+    <div class="card">
+      <div class="num">27</div>
+      <h4>Smart Scan Vehicles</h4>
+      <p>ANPR-equipped cars scanning plates while driving through zones</p>
+    </div>
+    <div class="card">
+      <div class="num">9.8M</div>
+      <h4>Plates Scanned (Q3)</h4>
+      <p>107% increase YoY, but still limited by road access and shift hours</p>
+    </div>
+    <div class="card">
+      <div class="num">682K</div>
+      <h4>Fines Issued (Q3)</h4>
+      <p>63% increase YoY — AED 77M+ in quarterly fine revenue</p>
+    </div>
+    <div class="card">
+      <div class="num red">85%</div>
+      <h4>Collection Rate</h4>
+      <p>Dropped from 97% — volume outpacing enforcement capacity</p>
+    </div>
+    <div class="card">
+      <div class="num amber">50°C+</div>
+      <h4>Summer Operations</h4>
+      <p>Inspector mobility and wellbeing challenges in extreme heat months</p>
+    </div>
+  </div>
+
+  <div class="warning" style="margin-top:2.5rem;">
+    <h4>⚠️ Key Bottlenecks Identified</h4>
+    <p><strong>1. Inspector Dependency:</strong> Even with smart scan cars, Parkin had to hire 31 additional drivers in Sept 2025 and redeploy vehicle operators to field roles — a 10% effective headcount increase just to keep up with demand.<br>
+    <strong>2. Road-Only Coverage:</strong> Scan cars can only cover road-accessible zones. Off-street lots, multi-storey facilities, and tight urban areas remain manual-inspection dependent.<br>
+    <strong>3. Temporal Gaps:</strong> Enforcement operates on shift schedules. Violations between shifts, late night, and early morning go undetected.<br>
+    <strong>4. Scaling Costs:</strong> Each new zone requires proportional inspector/vehicle deployment. Linear cost scaling doesn't match Parkin's exponential growth trajectory.</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════ SOLUTION ════════════════════════════════════════ -->
+<section class="section page">
+  <div class="stag">03 · The AeraScan Solution</div>
+  <h2 class="sh">Autonomous Drone Enforcement Platform</h2>
+  <p class="sp">A network of self-deploying drones operating from compact docking stations, providing continuous aerial parking enforcement across all zone types.</p>
+
+  <div class="grid2" style="margin-top:3rem;">
+    <div class="card">
+      <h4>🛩️ AeraScan Drone</h4>
+      <p>Purpose-built enforcement UAV with downward-facing 48MP ANPR camera, onboard edge AI for real-time plate recognition, RTK-GPS positioning, and 45-minute flight endurance. Operates in temperatures up to 55°C with sand/dust protection (IP55).</p>
+    </div>
+    <div class="card">
+      <h4>🔋 AeraScan Dock</h4>
+      <p>Weatherproof autonomous docking station (DJI Dock architecture). Houses one drone with automated battery swap, climate-controlled internals, 4G/5G uplink, and solar-assist power option. Mounts on lamp posts, building edges, or ground installations. Footprint: &lt;1m².</p>
+    </div>
+    <div class="card">
+      <h4>🧠 AeraScan Cloud</h4>
+      <p>Central command platform integrating with Parkin's backend via API. Real-time mission planning, plate-to-payment cross-referencing, violation evidence packaging (photo + GPS + timestamp), fleet management, and predictive zone scheduling using historical occupancy data.</p>
+    </div>
+    <div class="card">
+      <h4>📱 AeraScan Ops</h4>
+      <p>Operator dashboard for Parkin's enforcement team. Live drone tracking, zone heatmaps, violation alerts, evidence review queue, and one-click fine issuance. Integrates with existing Parkin enforcement workflows and handheld devices.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:3rem;font-size:1.3rem;font-weight:700;">How It Works</h3>
+  <div class="grid3" style="margin-top:1.5rem;">
+    <div class="card" style="border-top:3px solid var(--green);">
+      <h4>1. Auto-Deploy</h4>
+      <p>Drones launch from docks on scheduled missions or real-time demand triggers. Each dock covers a 2km radius. No human intervention required.</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--green);">
+      <h4>2. Aerial Scan</h4>
+      <p>Drone flies patrol routes at 30-50m altitude, scanning plates from above at 12 m/s. Covers parking rows inaccessible to ground vehicles. Reads plates in &lt;100ms.</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--green);">
+      <h4>3. Instant Enforce</h4>
+      <p>Each plate is cross-referenced against Parkin's payment system in real-time. Violations are auto-flagged with evidence package: photo, plate number, GPS coordinates, timestamp.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════ TECH SPECS ════════════════════════════════════════ -->
+<section class="section page">
+  <div class="stag">04 · Technical Specifications</div>
+  <h2 class="sh">Enterprise-Grade Hardware</h2>
+
+  <table class="comp-table">
+    <thead>
+      <tr><th>Component</th><th>Specification</th><th>Detail</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="metric">Flight Time</td><td>45 minutes</td><td>Per charge cycle, covering ~32km patrol distance</td></tr>
+      <tr><td class="metric">Recharge Time</td><td>25 minutes</td><td>Fast-charge with hot-swap capability at dock</td></tr>
+      <tr><td class="metric">Cruise Speed</td><td>12 m/s (43 km/h)</td><td>Optimized for plate readability vs. coverage area</td></tr>
+      <tr><td class="metric">Operating Altitude</td><td>30–50 meters</td><td>Optimal ANPR range, above obstacle height</td></tr>
+      <tr><td class="metric">Patrol Radius</td><td>2 km from dock</td><td>Configurable per zone density requirements</td></tr>
+      <tr><td class="metric">Camera System</td><td>48MP + IR assist</td><td>Downward-facing, optimized for UAE plate formats</td></tr>
+      <tr><td class="metric">Plate Read Speed</td><td>&lt;100ms per plate</td><td>Edge AI processing onboard — no cloud latency</td></tr>
+      <tr><td class="metric">Plate Accuracy</td><td>98.7%</td><td>All UAE plate types including temporary and diplomatic</td></tr>
+      <tr><td class="metric">Operating Temp</td><td>-10°C to 55°C</td><td>Full summer operations in UAE conditions</td></tr>
+      <tr><td class="metric">Weather Rating</td><td>IP55</td><td>Rain, dust, sand — continuous operations</td></tr>
+      <tr><td class="metric">Connectivity</td><td>4G/5G + WiFi 6</td><td>Real-time data uplink, redundant connection</td></tr>
+      <tr><td class="metric">Positioning</td><td>RTK-GPS + Visual</td><td>Centimeter-level accuracy for dock landing</td></tr>
+      <tr><td class="metric">Dock Footprint</td><td>0.8m × 0.8m × 0.6m</td><td>Compact enough for lamp post or wall mounting</td></tr>
+      <tr><td class="metric">Dock Power</td><td>220V AC / Solar</td><td>Grid-connected with optional solar-assist panel</td></tr>
+      <tr><td class="metric">Obstacle Avoidance</td><td>Omnidirectional</td><td>LiDAR + stereo vision, 360° sensing</td></tr>
+      <tr><td class="metric">Night Operations</td><td>IR-enhanced ANPR</td><td>Full plate readability in zero ambient light</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ════════════════════════════════════════ COMPARISON ════════════════════════════════════════ -->
+<section class="section page">
+  <div class="stag">05 · Head-to-Head Comparison</div>
+  <h2 class="sh">Current Operations vs. AeraScan</h2>
+
+  <table class="comp-table">
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th class="col-current">Current (Inspectors + Scan Cars)</th>
+        <th class="col-drone">AeraScan (Autonomous Drones)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="metric">Coverage Hours</td>
+        <td class="col-current">Shift-based (8am–10pm typical)</td>
+        <td class="col-drone good">24/7 continuous</td>
+      </tr>
+      <tr>
+        <td class="metric">Plates Scanned / Quarter</td>
+        <td class="col-current">9.8M (Q3 2025)</td>
+        <td class="col-drone good">30-50M projected</td>
+      </tr>
+      <tr>
+        <td class="metric">Zone Access</td>
+        <td class="col-current">Road-accessible only</td>
+        <td class="col-drone good">All zones including off-street, multi-storey rooftops, dead-ends</td>
+      </tr>
+      <tr>
+        <td class="metric">Summer Performance</td>
+        <td class="col-current bad">Degraded — inspector wellbeing issues at 50°C+</td>
+        <td class="col-drone good">Full capacity — rated to 55°C</td>
+      </tr>
+      <tr>
+        <td class="metric">Scaling Model</td>
+        <td class="col-current bad">Linear (more zones = more staff + vehicles)</td>
+        <td class="col-drone good">Marginal (add docks, not headcount)</td>
+      </tr>
+      <tr>
+        <td class="metric">Night Enforcement</td>
+        <td class="col-current bad">Limited / none</td>
+        <td class="col-drone good">Full IR-enhanced operations</td>
+      </tr>
+      <tr>
+        <td class="metric">Evidence Quality</td>
+        <td class="col-current">Handheld photo + manual input</td>
+        <td class="col-drone good">Aerial photo + GPS + timestamp — automated, dispute-proof</td>
+      </tr>
+      <tr>
+        <td class="metric">Scan Speed</td>
+        <td class="col-current">Vehicle-speed dependent, manual aim</td>
+        <td class="col-drone good">&lt;100ms per plate, continuous aerial sweep</td>
+      </tr>
+      <tr>
+        <td class="metric">Operational Risk</td>
+        <td class="col-current bad">Staff turnover, training, vehicle accidents, heat illness</td>
+        <td class="col-drone good">Automated — minimal human risk</td>
+      </tr>
+      <tr>
+        <td class="metric">Data Richness</td>
+        <td class="col-current">Plate + violation type</td>
+        <td class="col-drone good">Plate + aerial imagery + occupancy heatmaps + zone analytics</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ════════════════════════════════════════ COMMERCIAL ════════════════════════════════════════ -->
+<section class="section page">
+  <div class="stag">06 · Commercial Model</div>
+  <h2 class="sh">Financial Impact Analysis</h2>
+  <p class="sp">Projections based on Parkin's publicly reported FY2024 and Q3 2025 financials.</p>
+
+  <h3 style="margin-top:2.5rem;font-size:1.2rem;font-weight:700;">Parkin's Current Enforcement Economics</h3>
+  <div class="fin-row">
+    <div class="fin-box">
+      <div class="big green">AED 249M</div>
+      <div class="label">Annual Fine Revenue (2024)</div>
+      <div class="note">1.67M fines × avg AED 150</div>
+    </div>
+    <div class="fin-box">
+      <div class="big green">AED 308M+</div>
+      <div class="label">Projected Fine Revenue (2025)</div>
+      <div class="note">Based on Q3 run rate of 682K fines/quarter</div>
+    </div>
+    <div class="fin-box">
+      <div class="big red">15%</div>
+      <div class="label">Uncollected Fines</div>
+      <div class="note">Down from 97% → 85% collection rate</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:3rem;font-size:1.2rem;font-weight:700;">AeraScan Deployment — Cost Structure</h3>
+
+  <table class="comp-table">
+    <thead>
+      <tr><th>Item</th><th>Unit Cost</th><th>Qty (Phase 1)</th><th>Total</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="metric">AeraScan Dock + Drone</td><td>AED 180,000</td><td>50 units</td><td>AED 9.0M</td></tr>
+      <tr><td class="metric">Installation & Permitting</td><td>AED 15,000</td><td>50 sites</td><td>AED 0.75M</td></tr>
+      <tr><td class="metric">Cloud Platform License</td><td>AED 50,000/yr</td><td>1 instance</td><td>AED 0.05M/yr</td></tr>
+      <tr><td class="metric">API Integration (Parkin Backend)</td><td>AED 300,000</td><td>One-time</td><td>AED 0.3M</td></tr>
+      <tr><td class="metric">Maintenance & Support (Annual)</td><td>AED 12,000/unit/yr</td><td>50 units</td><td>AED 0.6M/yr</td></tr>
+      <tr><td class="metric">GCAA Drone Operations License</td><td>AED 50,000</td><td>One-time</td><td>AED 0.05M</td></tr>
+      <tr><td class="metric" style="font-weight:800;">Phase 1 Total (Year 1)</td><td></td><td></td><td style="font-weight:800;color:var(--green);">AED 10.75M</td></tr>
+      <tr><td class="metric" style="font-weight:800;">Annual Recurring (Year 2+)</td><td></td><td></td><td style="font-weight:800;color:var(--text-mid);">AED 0.65M</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:3rem;font-size:1.2rem;font-weight:700;">Revenue Impact Projection</h3>
+  <div class="fin-row">
+    <div class="fin-box">
+      <div class="big green">3-5×</div>
+      <div class="label">Plate Scan Increase</div>
+      <div class="note">From 9.8M to 30-50M plates/quarter</div>
+    </div>
+    <div class="fin-box">
+      <div class="big green">+40%</div>
+      <div class="label">Fine Detection Uplift</div>
+      <div class="note">Night + off-street + continuous coverage</div>
+    </div>
+    <div class="fin-box">
+      <div class="big green">AED 120M+</div>
+      <div class="label">Additional Annual Fine Revenue</div>
+      <div class="note">Conservative estimate at 40% uplift</div>
+    </div>
+  </div>
+
+  <div class="highlight">
+    <h4>📈 ROI Summary</h4>
+    <p><strong>Phase 1 investment:</strong> AED 10.75M<br>
+    <strong>Projected additional annual revenue:</strong> AED 120M+ (fine detection uplift alone)<br>
+    <strong>Cost savings:</strong> AED 15-25M/year (reduced inspector fleet, vehicle costs, insurance)<br>
+    <strong>Payback period:</strong> &lt;2 months<br>
+    <strong>5-year NPV:</strong> AED 600M+ at conservative estimates</p>
+  </div>
+
+  <h3 style="margin-top:3rem;font-size:1.2rem;font-weight:700;">Proposed Commercial Structure</h3>
+  <div class="grid2">
+    <div class="card" style="border-top:3px solid var(--green);">
+      <h4>Option A: Capex Purchase</h4>
+      <p>Parkin purchases the full AeraScan system outright. One-time hardware + integration cost, annual maintenance contract. Full ownership and control.</p>
+      <p style="margin-top:1rem;color:var(--green);font-weight:600;">AED 10.75M upfront + AED 0.65M/year</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--amber);">
+      <h4>Option B: Revenue Share (DaaS)</h4>
+      <p>Drone-as-a-Service model. Zero upfront cost. AeraScan deploys, operates, and maintains the entire fleet. Parkin pays a percentage of incremental fine revenue generated by the drone system.</p>
+      <p style="margin-top:1rem;color:var(--amber);font-weight:600;">0 upfront + 15-20% of incremental fine revenue</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════ COMPETITIVE LANDSCAPE ════════════════════════════════════════ -->
+<section class="section page">
+  <div class="stag">07 · Competitive Context</div>
+  <h2 class="sh">Why Now</h2>
+  <p class="sp">The parking enforcement landscape in Dubai is evolving rapidly. Competitors are already moving.</p>
+
+  <div class="warning">
+    <h4>⚡ Competitor Alert: Parkonic × Salik × Dubai Holding</h4>
+    <p>In August 2025, Parkonic and Salik announced the <strong>region's first fully autonomous, AI-powered parking solution</strong> — covering 36,000+ spaces across iconic Dubai communities. This is ground-based (cameras + sensors), not aerial. AeraScan leapfrogs this approach with <strong>aerial coverage that requires no per-space infrastructure</strong> — one dock covers thousands of spaces.</p>
+  </div>
+
+  <div class="grid2" style="margin-top:2rem;">
+    <div class="card">
+      <h4>Ground-Based Solutions (Parkonic/Salik)</h4>
+      <p>Requires sensor installation per space or per row. High infrastructure cost, long deployment timeline, limited to equipped zones only. Cannot scale to 219K spaces quickly.</p>
+    </div>
+    <div class="card" style="border-color:rgba(0,182,122,0.3);">
+      <h4>Aerial AeraScan Advantage</h4>
+      <p>One dock covers 2km radius — thousands of spaces. Zero per-space infrastructure. Deploy 50 docks and cover all of Dubai's public parking. Weeks, not years.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════ IMPLEMENTATION ════════════════════════════════════════ -->
+<section class="section page">
+  <div class="stag">08 · Implementation Roadmap</div>
+  <h2 class="sh">Phased Deployment Plan</h2>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-phase">Phase 0 — Months 1-2</div>
+      <h4>Proof of Concept</h4>
+      <p>Deploy 3 docks in a controlled zone (e.g., Zone C high-density area). Validate plate recognition accuracy against Parkin's existing scan car data. GCAA regulatory engagement and airspace clearance. Integration with Parkin test API environment.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-phase">Phase 1 — Months 3-6</div>
+      <h4>Pilot Deployment (50 Docks)</h4>
+      <p>Scale to 50 docking stations across priority zones. Full Parkin backend integration. Operator training and dashboard rollout. Performance benchmarking against current enforcement metrics. Regulatory approval for commercial operations.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-phase">Phase 2 — Months 7-12</div>
+      <h4>City-Wide Scale (150+ Docks)</h4>
+      <p>Expand to full Dubai coverage. Begin phased reduction of ground inspection fleet. Advanced analytics and predictive deployment. Multi-storey and developer parking coverage. Night enforcement activation.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-phase">Phase 3 — Year 2+</div>
+      <h4>GCC Expansion</h4>
+      <p>Package the proven Dubai deployment as a turnkey solution for other GCC markets. Abu Dhabi (Mawaqif), Saudi Arabia (emerging smart city projects), Qatar, Kuwait, Bahrain. First-mover advantage in autonomous parking enforcement across the region.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════ REGULATORY ════════════════════════════════════════ -->
+<section class="section">
+  <div class="stag">09 · Regulatory & Compliance</div>
+  <h2 class="sh">UAE Drone Operations Framework</h2>
+
+  <div class="grid2">
+    <div class="card">
+      <h4>GCAA Compliance</h4>
+      <p>All operations under UAE General Civil Aviation Authority regulations. Remote Pilot License (RPL) for supervisors, RPAS operator certificate for commercial operations, and airspace coordination with Dubai Civil Aviation Authority for urban BVLOS flights.</p>
+    </div>
+    <div class="card">
+      <h4>Privacy & Data</h4>
+      <p>Camera systems capture only license plates — no facial recognition, no personal identification. All data processed and stored in UAE-based cloud infrastructure. Compliant with UAE Federal Decree-Law No. 45/2021 on personal data protection.</p>
+    </div>
+    <div class="card">
+      <h4>Safety Systems</h4>
+      <p>Redundant flight controllers, automated return-to-dock on low battery or signal loss, geo-fencing to prevent zone departure, parachute recovery system for emergency descent. Full compliance with SORA risk assessment methodology.</p>
+    </div>
+    <div class="card">
+      <h4>Insurance</h4>
+      <p>Comprehensive third-party liability coverage for all drone operations. Hull insurance on all airframes. Cyber insurance on data platform. All policies compliant with GCAA minimum requirements for commercial RPAS operations.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════ CTA ════════════════════════════════════════ -->
+<section class="section" style="text-align:center;padding:6rem 0;">
+  <div class="stag">Next Steps</div>
+  <h2 class="sh" style="max-width:600px;margin:0 auto 1.5rem;">Ready to Transform Parking Enforcement?</h2>
+  <p class="sp" style="margin:0 auto 2.5rem;text-align:center;">We propose a meeting to discuss the proof-of-concept deployment, zone selection, and integration timeline.</p>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+    <div class="card" style="text-align:left;max-width:300px;">
+      <h4>Skyvertise</h4>
+      <p>Drone Technology Partner<br>Dubai, UAE<br><br>
+      <strong>Contact:</strong><br>
+      info@skyvertise.io<br>
+      skyvertise.io</p>
+    </div>
+  </div>
+</section>
+
+</div><!-- /container -->
+
+<footer>
+  <p>© 2026 Confidential — Parkin PJSC × Skyvertise. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
